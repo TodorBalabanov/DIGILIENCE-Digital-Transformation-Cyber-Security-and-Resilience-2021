@@ -9,11 +9,12 @@
 \usepackage[varvw]{newtxmath}
 \usepackage{hyperref}
 \usepackage{amsmath}
+\usepackage{array}
 
 \begin{document}
 
-\title*{RSA Weaknesses Caused by RNG's Specifics}
-\titlerunning{RSA Weaknesses Caused by RNG's Specifics}
+\title*{RSA vulnerabilities due RNG specifics}
+\titlerunning{RSA vulnerabilities due RNG specifics}
 
 \author{Ivan Blagoev, Todor Balabanov, Iliyan Iliev}
 \authorrunning{I. Blagoev, T. Balabanov, I. Iliev}
@@ -31,23 +32,59 @@
 \section{Introduction}
 \label{sec:1}
 
-The faster development of modern societies leads to greater digitalization. More activities and processes are much more productive and effectively managed by the involvement of the technologies. All these processes even did accelerate and did prove their value when the world was affected by the global pandemic of Covid-19. A transformation that would have taken years had to happen within months. The societies were pushed to search for different living styles much more connected with the technologies. At first glance, it looks that the world is prepared for such a technology challenge, and in general, it is like this. At the same time, the number of cybercrimes did rise. The encroachment on personal data, encroachment on personal money, and loss of information, extortion due to loss of information also escalated to unprecedented levels. All of this is a strong indicator that while technology and computing infrastructure have met the challenge, we are not ready for strong cybersecurity (Jang-Jaccard, 2014), (Kostadinov, 2019), (Dineva, 2019).  
+The faster development of modern societies leads to greater digitalization. More activities and processes are much more productive and effectively managed by the involvement of the technologies. All these processes even did accelerate and did prove their value when the world was affected by the global pandemic of Covid-19. A transformation that would have taken years had to happen within months. The societies were pushed to search for different living styles much more connected with the technologies. At first glance, it looks that the world is prepared for such a technology challenge, and in general, it is like this. At the same time, the number of cybercrimes did rise. The encroachment on personal data, encroachment on personal money, and loss of information, extortion due to loss of information also escalated to unprecedented levels. All of this is a strong indicator that while technology and computing infrastructure have met the challenge, we are not ready for strong cybersecurity. (Jang-Jaccard, 2014), (Kostadinov, 2019), (Dineva, 2019)
 
-Compliance with cybersecurity requirements is a prerequisite for the security and safety of IT infrastructures, digital resources, and personal data protection. In this respect, the topics of cryptography and the sufficiently reliable generation of random numbers that underlie any encryption system are of particular interest. (Velizar Shalamanov, 2020)
+Compliance with cybersecurity requirements is a prerequisite for the security and safety of IT infrastructures, digital resources, and personal data protection. In this respect, the topics of cryptography and the sufficiently reliable generation of random numbers that underlie any encryption system are of particular interest. (Shalamanov, 2020)
 
-For modern cryptography needs, two types of random number generators are used - a true random number generator (TRNG) and a pseudo-random number generator (PRNG) (DiCarlo, 2012). 
+For modern cryptography needs, two types of random number generators are used - a true random number generator (TRNG) and a pseudo-random number generator (PRNG). (DiCarlo, 2012) 
 
-True Random Number Generator (TRNG): applied when the RNG needs to generate values at a given time that should be unique and should not be repeated in subsequent RNG calls (Carr, 2003), (L'Ecuyer, 2007) . The numbers obtained with this type of RNG are applied to operations that require unique / non-repeating numerical values generated over time (Jin, 2004), (Camara, 2019). An example of such a situation is the generation of a cryptographic key for encoding/decoding data, initialization vectors, initial numerical values (seed) for controlled RNGs, etc. (Ergün, 2015; Ryabko, 2016). 
+True Random Number Generator (TRNG): applied when the RNG needs to generate values at a given time that should be unique and should not be repeated in subsequent RNG calls. (Carr, 2003), (L'Ecuyer, 2007) The numbers obtained with this type of RNG are applied to operations that require unique / non-repeating numerical values generated over time. (Jin, 2004), (Camara, 2019) An example of such a situation is the generation of a cryptographic key for encoding/decoding data, initialization vectors, initial numerical values (seed) for controlled RNGs, etc. (Ergün, 2015)(Ryabko, 2016)
 
 Pseudo-Random Number Generator (PRNG): An initial random number from the micro or macro world (seed) is used as the basis for this generator and a mathematical formula is used for subsequent numbers. From the initial value, by application of a particular algorithm, all random numbers generated subsequently originate. Subsequent values, in their order, are reproducible. The only unexpected and secret value that should be as unpredictable as possible is the initial number, which is the "root" at the base of this sequence and initiates the generation of the entire numeric sequence. From this technology are borrowed the authentication with One Time Password (OTP), the generation of cryptographic keys derived from the Master Root Key (applied in the compilation of portfolios in BlockChain - distributed ledger technology), authentication via HMAC, and others.
 
-Traditional RNG security measures are mostly generalized statistics related to deviations from mathematical randomness (Trappe, 2006).
+Traditional RNG security measures are mostly generalized statistics related to deviations from mathematical randomness. (Trappe, 2006)
 
 The hardware random number generator (HRNG) (Dichtl, 2003) or more True Random Number Generator (TRNG) is a device that generates random numbers from a physical process, not through an algorithm. This type of generators are radically different from those discussed so far, because such devices are often based on micro-world phenomena that generate low-level, statistically random "noise" signals, such as thermal noise, photoelectric effect including beam splitter and other quantum phenomena. These stochastic processes are considered completely unpredictable in theory, unlike the paradigm for generating pseudo-random numbers, often applied in computer programs. In general, two main sources of practical quantum-mechanical physical probabilities are known: quantum mechanics at the atomic or subatomic level and thermal noise (some of which are of quantum-mechanical origin). Quantum mechanics states that some physical phenomena, such as the nuclear decay of atoms, are fundamentally random and generally unpredictable.
 
 Since the result of quantum mechanical events cannot be predicted, they are considered as a "gold standard" for generating random numbers. In fact, one of the best random number generators for server systems is considered to be photon-type quantum generators. They are compact enough and can fit on a PCB, while at the same time they have a very high-performance rate. According to some research, in many cases, such a hardware module has the capacity to power more than one public service server with quality random numbers. 
 
-Regardless of which of the random number generators is applied (uncontrolled or controlled), the overall success of the system depends on the statistical qualities of the produced numbers (Lavasani, 2009). The rapidly growing demand for frequency bands, increasing volumes of stored data, and performing calculations, combined with the growing spectrum of cyber threats, ensure that our need for reliable and unpredictable random numbers will only grow in the future (Hart, 2017). 
+Regardless of which of the random number generators is applied (uncontrolled or controlled), the overall success of the system depends on the statistical qualities of the produced numbers. (Lavasani, 2009) The rapidly growing demand for frequency bands, increasing volumes of stored data, and performing calculations, combined with the growing spectrum of cyber threats, ensure that our need for reliable and unpredictable random numbers will only grow in the future. (Hart, 2017) 
+
+\section{Significance of the Problem}
+\label{sec:2}
+
+\subsection{RNG problems are at the heart of a Taiwanese citizen's digital certificate flaw}
+\label{sub-sec:2-1}
+
+Bernstein, Chang, Cheng, Chou, Heninger, Lange and van Someren presented a paper during Asiacrypt 2013 where they showed that official citizen identification smartcards issued by the Taiwanese governments were flawed. Their results are builds on the  research by Heninger et al. (citation missing) on low entropy security keys. Where in they studies low entropy security keys and if similar flaws can be found in the Taiwanese ”Citizen Digital Certificate” database. The researchers investigated 2 million 1024-bit RSA keys from the Taiwanese ”Citizen Digital Certificate” database and found that 184 of these keys were trivial to factor in a matter of hours. They attributed these weak RSA keys to a fatal flaw in the hardware RNG. The randomness used for the RSA key generation contained insufficient entropy and created predictable patterns for RSA primes.
+
+The researchers showed that the smartcards containing this fatal vulnerability in their key generation is already used by Taiwanese citizens. The smartcards were used for security sensitive processes such as:
+
+• personal income taxes,
+
+• car registration updates,
+
+• for transactions with government agencies (property registries, national labor insurance, public safety and immigration),
+
+• grant applications
+
+• companies interacting
+
+Also this vulnerability could have been a cyber tool for malicious parties because there is involved a significant amount of money. 
+
+Anyone can factor the primes of the RSA key and then to compromised the underlying key, they could then forge the smartcard holder’s digital signature and steal his identity.
+
+\subsection{Weak keys in network devices}
+\label{sub-sec:2-2}
+
+In a paper published 2012 by Heninger et al. showed a weakness in TLS (Transport Layer Security) and SSH (Secure Shell) servers involving weak security keys. They reveals that malfunctioning RNGs produce low-entropy randomness for the RSA and DSA server keys, which next is causes for a compromised cryptography. The researchers indicate for that vulnerability is because have entropy hole in the RNGs (/dev/random and /dev/urandom). During boot-up /dev/random uses data left over from the previous boot for the entropy pool. But when the system has been power off for a long time and memory is returned to its ground state this data is predictable.
+
+Lastly, the researchers show that when the Linux kernel extracts entropy from a pool, it hashes the pool contents and mixes part of the result back into the pool. When multiple threads doing that entropy concurrently, this creates significant entropy because of the unpredictability in the concurrency behaviour. But the researchers also show that when the kernel is forced to use only one physical thread, this method is not enought for generates entropy for the pool.
+
+The vulnerabilities in the produced randomness values is caused a large number of TLS certificates and SSH keys easily to be factorable and then compromised. The researchers show that some RSA private keys were obtained because their public keys shared nontrivial common factors due to these entropy problems. Obtaining these security keys compromises the entire TLS and SSH systems, and therefore this is an problem with a large impact on the servers using these compromised systems. They shows the importance of having high-entropy randomness during cryptographic key generation, and the importance of solving the problem of low-entropy events in the Linux RNGs.
+
+\section{Randomness in RSA Cryptography}
+\label{sec:3}
 
 The essence of RSA encryption is that it using only information that is publicly available. With the public key, anyone can encrypt a message they want to send to the owner of the private key. This is possible because without knowing the values of $p$ and $q$, no one but the owner of the private key can decode the message. Although everyone knows the public key $x = p * q$, this does not give them any effective way to find values for $p$ or $q$. According to a group of researchers years ago, it was thought that even the discovery of a 232-digit number would take more than 1,500 years of computational time (distributed among hundreds of computers) to compromise such a private key. 
 
@@ -72,7 +109,7 @@ For $n$-bit numbers, take $O(n)$ time. Using a multiplication operation, multipl
 Calculating the GCD using the Euclidean algorithm takes $O(n2 log n log log n)$ time. Once again, however, researchers have found a better algorithm that works in time $O (n log 2 n log log n)$. Fortunately, all of these algorithms have already been implemented in GMP (GNU MP Subquadratic), the C ++ library for working with large numbers. For the rest of the study, we will use the $\overset{\sim}{\mathcal{O}}$ notation, a variant of the Big-O notation that ignores logarithmic factors. For example, while the calculation of GCD takes time $O (n log 2 n log log n)$, in notation we write that it takes time $\overset{\sim}{\mathcal{O}}(n)$.
 
 \section{Problem Transformation}
-\label{sec:2}
+\label{sec:4}
 
 Define the set of public RSA keys with $k_1, ... , k_n$, where each key is the product of two large prime numbers. Note that $n$ is the total number of keys. Instead of calculating the GCD of each key pair, we can calculate for each key $k_i$ GCD of it and the product of all other keys $\prod_{t=1} K_t$. If the key $k_i$ shares one main factor with other keys, then this will give the main factor. However, if both main factors of $k_i$ are shared with other keys, the calculation will not be able to actually extract the individual primary factors. This case may be rare enough and not worth paying much attention to. 
 
@@ -112,8 +149,96 @@ The efficiency of RNG is measured by the degree of entropy to generate random nu
 
 The complexity of analyzing a given random number generator is a function of the quality of its entropy, seasonality, and tendency to collide. These are the moments when the random number generator will generate a value that is a cyclic or value field, which leads to the repetition or generation of a new but expected value. Through time series mathematics, it is possible to determine the entropy over time and it is likely to calculate (predict) the possible future reappearance of the data. The detection of seasonality in the obtained values, deviations, or collisions may also indicate weaknesses of the random number generator. If the generator is of good quality, then it will follow the analysis of a very large number of statistical values from a numerical array generated by it with a high degree of entropy and unpredictability, which will be very resource-intensive and complex. This will also make it very attack-resistant throughout the cryptography associated with this generator.
 
+\section{Possible Ways to Help of RNG’s Entropy Problem in Computer Systems}
+\label{sec:5}
+
+\subsection{Linux Debian based operationg systems (RNG entropy incressing with Intel’s CPU HwRNG technology)}
+\label{sub-sec:5-1}
+
+The name of the random number generation module is Intel Secure Key, its previous code name is Bull Mountain Technology. Therefore, it must be verified whether the current system has such processors and its configuration could be upgraded. In the presence of a computer system with a Linux operating system, verification may be done except through the technical documentation of the chips from the manufacturer and through the following combination of commands:
+
+\$ cat /proc/cpuinfo | grep -i rdrand | echo \$?
+
+232
+As a result, 0 means that an RDRAND flag is available and the processor can be turned on to improve the cryptographic functions of the system as follows:
+
+\# apt install rng-tools-debian
+
+\# /etc/init.d/rng-tools-debian start
+
+\# /etc/init.d/rng-tools-debian status
+
+* rng-tools-debian.service - LSB: rng-tools (Debian variant)
+
+Loaded: loaded (/etc/init.d/rng-tools-debian; generated)
+
+Active: active (running) since Fri 2021-09-28 17:30:54 EET; 2min 15s ago
+
+Docs: man:systemd-sysv-generator(8)
+
+Tasks: 4 (limit: 4915)
+
+Memory: 1.3M
+
+CGroup: /system.slice/rng-tools-debian.service
+
+'-3597 /usr/sbin/rngd -r /dev/hwrng
+
+\$ cat /proc/sys/kernel/random/entropy\_avail
+
+4038
+
+The results show that the rate of entropy collection for our case exceeds the rate of its consumption.
+
+\section{Possible Solution is Migration from RSA to ECC}
+\label{sec:6}
+
+\subsection{The RSA algorithm is considered as slower algorithm}
+\label{sub-sec:6-1}
+
+Usually the RSA keys are 2048 – bit and 4096 – bit long. From the RSA's security point of view, the 2048-bit RSA keys are not considered fully secure. This is why, Most of the organisations right now are moving towards 4096 – bit keys. However, many organisations avoiding the RSA encryption now because of slow key generation/algorithm and due to maximum consumption of machine resources.
+
+\subsection{ECC cryptography}
+\label{sub-sec:6-2}
+
+ECC (elliptic curve cryptography) was born when two mathematicians named Neal Koblitz and Victor S. Miller proposed the use of elliptical curves in cryptography. The ECC in the public-key cryptography uses elliptic curves over finite fields. This technique uses the elliptic curve theory. An elliptic curve represents the set of points that satisfy a mathematical equation ($y2 = x3 + ax + b$). The elliptical curve looks like this:
+
+\begin{figure}[h]
+\sidecaption
+\includegraphics[width=\textwidth,height=0.5\textwidth]{fig01}
+\caption{}
+\label{fig:01}
+\end{figure}
+
+It can be used to create the smaller, much faster and more efficient cryptographic keys. Instead of using traditional method to generate product of very large prime numbers, it uses elliptic curve equation to generate keys. ECC is used in the all fundamental blockchain cryptocurrencies and one of well-known is Bitcoin. For the hackers, it is really hard to crack ECC algorithm that works on Elliptic Curve Discrete Logarithm Problem (ECDLP). Because of the mathematical specific of ECC and size of numbers needed to be created ECC key pair the conclusion can be made that ECC is more compliant with possibility of present RINGs.
+
+Here is a quick comparison between RSA and ECC.
+
+\begin{center}
+\begin{tabular}{ | m{6cm} | m{6cm} | }
+\hline
+RSA & ECC \\
+\hline
+It has a slow algorithm and it may make maximum use of computer resources such as battery etc. & The algorithm is fast as key sizes are smaller, less burden on system resources. \\
+\hline
+It is vulnerable against quantum computers and brute force attack. & It uses ECC algorithm that works on Elliptic Curve Discrete Logarithm Problem (ECDLP), it is quite hard for hacker to crack it, hence much secure. \\
+\hline
+In RSA, longer keys may be required for higher security. & Thanks to its shorter key lengths, ECDSA offers much better performance compared to RSA. \\
+\hline
+In RSA, scalability is not optimal. & Scalability is improved as the higher traffic can be handled by server because of lower overhead. \\
+\hline
+RSA is more RNG limits depended & Smaller keys and mathematic specifics makes ECC more secure in current RNG possibilities \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection{Through the time and Quantum computers}
+\label{sub-sec:6-3}
+
+Currently and the both algorithms (RSA, ECC) is not so easy to be hacked, but all of it will change by the possible (and probable) introduction of quantum computers in the future. The National Institute of Standards and Technology (NIST) predicts that once quantum computing becomes mainstream, modern public key cryptography will fail. Because quantum computers are mightily powerful — significantly more power than today’s supercomputers — because they operate on qubits rather than bits. What this means is that they can try multiple combinations at any given point of time and, therefore, their computing time is significantly shorter. These quantum computers are likely to make today’s encryption systems obsolete - including RSA and ECDSA.
+
 \section{Conclusions}
-\label{sec:3}
+\label{sec:7}
 
 The study of the presented weaknesses in the asymmetric RSA algorithm is of high importance for a more secure and fast transition to the modern digital transformation. Hardware solutions that could significantly support the quality of RNG in computer systems have been listed. Which would significantly affect the security of modular cryptography. The study also reveals a RSA's cryptographic security problems when using it. Which would lead to search for replacement of modular cryptography with other solutions that are more secure when using the widespread in computer systems RNG solutions.
 
